@@ -7,7 +7,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class BaseSteps {
     public WebDriver driver = Hooks.driver;
-    public void BaseSteps(){
+    public BaseSteps(){
         PageFactory.initElements(driver, HomePage.class);
         PageFactory.initElements(driver, SignInPage.class);
     }

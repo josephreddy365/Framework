@@ -11,7 +11,7 @@ public class Hooks {
 
     @Before
     public void openBrowser(){
-        System.setProperty("webdriver.chrome.driver", "D:\\Apps and Drivers\\Selenium Drivers\\Driver Chrome\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/Browsers/Chrome/chromedriver.exe");
         driver = new ChromeDriver();
         driver.get(url);
     }
