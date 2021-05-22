@@ -1,5 +1,6 @@
 package com.ui.stepdefinitions;
 
+import com.utils.ReadProperties;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import org.openqa.selenium.WebDriver;
@@ -7,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 public class Hooks {
     public static WebDriver driver = null;
+    public static String Url = ReadProperties.returnConfig("URL_env");
     static String url = "http://automationpractice.com/";
 
     @Before
