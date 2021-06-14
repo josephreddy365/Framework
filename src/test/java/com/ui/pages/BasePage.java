@@ -37,7 +37,7 @@ public class BasePage {
     public static ConfigFileReader Config = new ConfigFileReader();
     static String Email = "Email";
     private static By initialProductMenuRootPath = By.xpath("//div[contains(@class, 'menuWrapper') and not(ancestor::li[@class='parent']) and not(ancestor::nav[contains(@class, 'customMobileMenu')])]/ul");
-    public static WebDriver Driver ;
+    public static WebDriver driver;
     private static Logger log = LogManager.getLogger(BasePage.class);
     public static String Env = null ;
     //Set timeOutDefault for WebDriverWait
@@ -57,13 +57,13 @@ public class BasePage {
 
     //constructor
     public BasePage(){
-            Driver =Hooks.driver;
+            driver =Hooks.driver;
         if(wait == null) setWebDriverWait();
         if(!isImplicitWaitSet) applyDefaultImplicitWait();
     }
 
     public static void setWebDriverWait() {
-        BasePage.wait = new WebDriverWait(Driver, timeOutDefault);
+        BasePage.wait = new WebDriverWait(driver, timeOutDefault);
     }
 
     //methods
@@ -83,7 +83,7 @@ public class BasePage {
     }
 
     public static void waitForElementToBeClickable(WebElement element) {
-        new FluentWait<>(Driver)
+        new FluentWait<>(driver)
                 .withTimeout(Duration.ofSeconds(timeOutDefault))
                 .ignoring(StaleElementReferenceException.class)
                 .ignoring(NoSuchElementException.class)
@@ -91,15 +91,15 @@ public class BasePage {
     }
 
     public static void waitForElementToBeVisible(By element) {
-        wait = new WebDriverWait(Driver, 40);
+        wait = new WebDriverWait(driver, 40);
         wait.ignoring(StaleElementReferenceException.class);
-        wait.until(ExpectedConditions.visibilityOf(Driver.findElement(element)));
+        wait.until(ExpectedConditions.visibilityOf(driver.findElement(element)));
         setWebDriverWait();
     }
 
     public static void waitForTextToBePresent(String expectedOption, WebElement element) {
         log.info("Waiting for text to be present in element " + element);
-        wait = new WebDriverWait(Driver, 10);
+        wait = new WebDriverWait(driver, 10);
         wait.ignoring(StaleElementReferenceException.class);
         log.info("Waiting for text: " + element.getText() + " to include: " + expectedOption);
         wait.until(ExpectedConditions.textToBePresentInElement(element, expectedOption));
@@ -107,7 +107,7 @@ public class BasePage {
 
     public static void waitForElementToBeSelected(WebElement element) {
         log.info("Waiting for element =>" + element + "<= to be selected.");
-        wait = new WebDriverWait(Driver, 15);
+        wait = new WebDriverWait(driver, 15);
         wait.ignoring(StaleElementReferenceException.class);
         wait.until(ExpectedConditions.elementSelectionStateToBe(element, true));
         setWebDriverWait();
@@ -127,7 +127,7 @@ public class BasePage {
 
     public static void waitForElementToBeStale(WebElement element) {
         wait.ignoring(StaleElementReferenceException.class);
-        wait.until(ExpectedConditions.stalenessOf(Driver.findElement(extractByFromWebElement(element))));
+        wait.until(ExpectedConditions.stalenessOf(driver.findElement(extractByFromWebElement(element))));
     }
 
     public static void waitForElementToBeEnabled(By by) throws Exception {
@@ -162,7 +162,7 @@ public class BasePage {
                     }
                 } catch (StaleElementReferenceException e) {
                     log.info("Element was stale, attempting to check display using By");
-                    element = Driver.findElement(extractByFromWebElement(element));
+                    element = driver.findElement(extractByFromWebElement(element));
                     if (checkIfElementDisplayed(element, true)) {
                         log.info("Found element =>" + element + "<= was displayed, returning element");
                         applyDefaultImplicitWait();
@@ -248,7 +248,7 @@ public class BasePage {
      * but is not critical to the goal of the method/test
      */
     public static void removeImplicitWait() {
-        Driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
         log.info("Removed Implicit wait. Implicit wait is now set to 0");
         isImplicitWaitSet = false;
     }
@@ -262,18 +262,18 @@ public class BasePage {
             log.debug("Implicit wait already set, not updating");
             return;
         }
-        Driver.manage().timeouts().implicitlyWait(implicitWaitDefault, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(implicitWaitDefault, TimeUnit.SECONDS);
         log.info("Applied default implicit wait. Implicit wait is set to " + implicitWaitDefault + " seconds.");
         isImplicitWaitSet = true;
     }
 
     public static void scrollToElement(By by, boolean elementShouldBeTop) {
-        JavascriptExecutor je = (JavascriptExecutor) Driver;
-        je.executeScript("arguments[0].scrollIntoView(" + elementShouldBeTop + ");", Driver.findElement(by));
+        JavascriptExecutor je = (JavascriptExecutor) driver;
+        je.executeScript("arguments[0].scrollIntoView(" + elementShouldBeTop + ");", driver.findElement(by));
     }
 
     public static void scrollToElement(WebElement element, boolean elementShouldBeTop) {
-        JavascriptExecutor je = (JavascriptExecutor) Driver;
+        JavascriptExecutor je = (JavascriptExecutor) driver;
         je.executeScript("arguments[0].scrollIntoView(" + elementShouldBeTop + ");", element);
     }
 
@@ -288,7 +288,7 @@ public class BasePage {
     }
 
     public static void doubleClick(WebElement Element) {
-        Actions actions = new Actions(Driver);
+        Actions actions = new Actions(driver);
         actions.doubleClick(Element).perform();
     }
 
@@ -328,7 +328,7 @@ public class BasePage {
     }
 
     public static void moveToWebElement(WebElement element) {
-        Actions actions = new Actions(Driver);
+        Actions actions = new Actions(driver);
         actions.moveToElement(element).build().perform();
     }
 
@@ -351,8 +351,8 @@ public class BasePage {
         } catch (StaleElementReferenceException e) {
             e.printStackTrace();
             log.debug("Element has become stale, retrying...");
-            if (elementByIsSafeToFindBy) element = Driver.findElement(extractByFromWebElement(element));
-            else Driver.navigate().refresh();
+            if (elementByIsSafeToFindBy) element = driver.findElement(extractByFromWebElement(element));
+            else driver.navigate().refresh();
             waitAndMove(element);
         } catch(TimeoutException e) {
             e.printStackTrace();
@@ -411,7 +411,7 @@ public class BasePage {
     }
 
     public static void waitAndClickWithRetry(WebElement element, boolean elementByIsSafeForFindBy) throws Exception {
-        wait = new WebDriverWait(Driver, 15);
+        wait = new WebDriverWait(driver, 15);
         applyDefaultImplicitWait();
         try {
             waitAndClick(element);
@@ -427,7 +427,7 @@ public class BasePage {
             log.info("Timeout Exception occurred, retrying...");
             waitForPageToLoad();
             log.info("Temporarily increasing WebDriver wait to 40 seconds");
-            wait = new WebDriverWait(Driver, 40);
+            wait = new WebDriverWait(driver, 40);
             waitAndClick(element);
             log.info("Successfully re-clicked element");
             setWebDriverWait();
@@ -443,8 +443,8 @@ public class BasePage {
                     "Ensure that \"" + element + "\" is visible and has been moved to in order to avoid this exception." +
                     "Attempting move to element and retrying click");
             waitForPageToLoad();
-            element = elementByIsSafeForFindBy ? Driver.findElement(extractByFromWebElement(element)) : element;
-            scrollToElement(Driver, element);
+            element = elementByIsSafeForFindBy ? driver.findElement(extractByFromWebElement(element)) : element;
+            scrollToElement(driver, element);
             try {
                 waitAndClick(element);
             } catch (ElementClickInterceptedException e1) {
@@ -508,7 +508,7 @@ public class BasePage {
             log.debug("Element was Stale, retrying...");
             By by = extractByFromWebElement(element);
             try {
-                boolean displayed = Driver.findElement(by).isDisplayed();
+                boolean displayed = driver.findElement(by).isDisplayed();
                 log.info("Found element: " + displayed + " that element is displayed.");
                 if (!callerRemovesImplicitWait) applyDefaultImplicitWait();
                 return displayed;
@@ -543,7 +543,7 @@ public class BasePage {
         } catch (StaleElementReferenceException | TimeoutException e) {
             log.debug("Element was Stale, retrying...");
             try {
-                boolean displayed = Driver.findElement(by).isDisplayed();
+                boolean displayed = driver.findElement(by).isDisplayed();
                 log.info("Found element: " + displayed + " that element is displayed.");
                 applyDefaultImplicitWait();
                 return displayed;
@@ -569,7 +569,7 @@ public class BasePage {
     }
 
     private static boolean checkIfElementAtByIsDisplayed(By by) {
-        List<WebElement> elements = Driver.findElements(by);
+        List<WebElement> elements = driver.findElements(by);
         for (WebElement element : elements) if (element.isDisplayed()) return true;
         return false;
     }
@@ -671,7 +671,7 @@ public class BasePage {
         removeImplicitWait();
         boolean exists;
         try {
-            Driver.findElement(element);
+            driver.findElement(element);
             exists = true;
         } catch (NoSuchElementException e) {
             log.debug("No element found: " + e);
@@ -717,7 +717,7 @@ public class BasePage {
     }
 
     public static Boolean urlContainsText(String partialUrl){
-        return Driver.getCurrentUrl().toLowerCase().contains(partialUrl);
+        return driver.getCurrentUrl().toLowerCase().contains(partialUrl);
     }
 
 
@@ -733,13 +733,13 @@ public class BasePage {
      * 		Override default WebDriverWait to be 15 seconds
      */
     public static void navigateProductDropdownWithRetry(String menuLevel1) throws Exception {
-        wait = new WebDriverWait(Driver, 15);
+        wait = new WebDriverWait(driver, 15);
         try {
             navigateProductDropdown(menuLevel1);
         } catch (StaleElementReferenceException e) {
             e.printStackTrace();
             log.debug("Element has become stale, retrying...");
-            Driver.navigate().refresh();
+            driver.navigate().refresh();
             navigateProductDropdown(menuLevel1);
         } catch (TimeoutException e) {
             e.printStackTrace();
@@ -762,13 +762,13 @@ public class BasePage {
     }
 
     public static void navigateProductDropdownWithRetry(String menuLevel1, String menuLevel2) throws Exception {
-        wait = new WebDriverWait(Driver, 15);
+        wait = new WebDriverWait(driver, 15);
         try {
             navigateProductDropdown(menuLevel1, menuLevel2);
         } catch (StaleElementReferenceException e) {
             e.printStackTrace();
             log.debug("Element has become stale, retrying...");
-            Driver.navigate().refresh();
+            driver.navigate().refresh();
             navigateProductDropdown(menuLevel1, menuLevel2);
         } catch (TimeoutException e) {
             e.printStackTrace();
@@ -792,13 +792,13 @@ public class BasePage {
     }
 
     public static void navigateProductDropdownWithRetry(String menuLevel1, String menuLevel2, String menuLevel3) throws Exception {
-        wait = new WebDriverWait(Driver, 15);
+        wait = new WebDriverWait(driver, 15);
         try {
             navigateProductDropdown(menuLevel1, menuLevel2, menuLevel3);
         } catch (StaleElementReferenceException e) {
             e.printStackTrace();
             log.debug("Element has become stale, retrying...");
-            Driver.navigate().refresh();
+            driver.navigate().refresh();
             navigateProductDropdown(menuLevel1, menuLevel2, menuLevel3);
         } catch (TimeoutException e) {
             e.printStackTrace();
@@ -946,7 +946,7 @@ public class BasePage {
         removeImplicitWait();
         int count = 0;
         WebElement uniqueElement = null;
-        List<WebElement> elements = Driver.findElements(by);
+        List<WebElement> elements = driver.findElements(by);
         log.info("Found =>" + elements.size() + "<= elements with by =>" + by + "<= Going to see which ones are visible");
         if (elements.size() == 1)
             try {
@@ -1000,7 +1000,7 @@ public class BasePage {
     private static List<WebElement> getVisibleElements(By by) {
         log.info("Looking for visible elements by by =>" + by);
         List<WebElement> visibleElements = new ArrayList<>();
-        List<WebElement> foundElements = Driver.findElements(by);
+        List<WebElement> foundElements = driver.findElements(by);
 
         log.info("Found =>" + foundElements.size() + "<= elements by by =>" + by + "<= Going to return visible elements");
         removeImplicitWait();
@@ -1097,7 +1097,7 @@ public class BasePage {
         log.info("Going to look for element passed with text =>" + expectedText);
 
         while(i<maxTry) {
-            elementDisplayedText=Driver.findElement(element).getText();
+            elementDisplayedText= driver.findElement(element).getText();
             log.info("Going to look for element attempt number"+i+" with text:" + elementDisplayedText);
 
             if(!StringUtils.isEmpty(elementDisplayedText)) {
@@ -1113,14 +1113,14 @@ public class BasePage {
     }
 
     public static void openTab(String tab) throws Exception {
-        LinkedList<String> tabs = new LinkedList<String>(Driver.getWindowHandles());
+        LinkedList<String> tabs = new LinkedList<String>(driver.getWindowHandles());
         log.info("Switching to tab =>" + tabs.getLast());
         switch (tab) {
             case "latest":
-                Driver.switchTo().window(tabs.getLast());
+                driver.switchTo().window(tabs.getLast());
                 break;
             case "first":
-                Driver.switchTo().window(tabs.getFirst());
+                driver.switchTo().window(tabs.getFirst());
                 break;
             default:
                 throw new Exception("not a recognised tab argument");
@@ -1129,8 +1129,8 @@ public class BasePage {
     }
 
     public static Boolean waitForPageToLoad() {
-        WebDriverWait wait = new WebDriverWait(Driver, 30);
-        JavascriptExecutor js = (JavascriptExecutor) Driver;
+        WebDriverWait wait = new WebDriverWait(driver, 30);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
 
         log.info("Waiting for JS/Jquery to load.....");
 
@@ -1166,11 +1166,11 @@ public class BasePage {
 
         try {
             removeImplicitWait();
-            linkTextElement = Driver.findElement(By.linkText(linkText));
+            linkTextElement = driver.findElement(By.linkText(linkText));
         } catch (Exception e) {
             log.info("Could not find element link text, attempting search by contains text =>"+linkText);
             applyDefaultImplicitWait();
-            linkTextElement = Driver.findElement(By.xpath("//*[text()[contains(., \"" + linkText + "\")]]|//*[@alt=\"" + linkText + "\"]"));
+            linkTextElement = driver.findElement(By.xpath("//*[text()[contains(., \"" + linkText + "\")]]|//*[@alt=\"" + linkText + "\"]"));
         }
         BasePage.waitAndClickWithRetry(linkTextElement);
         log.info("Clicked on URL with link text =>" + linkText);
@@ -1190,7 +1190,7 @@ public class BasePage {
         log.info("Going to look for element passed with text =>" + expectedTextOnUI);
 
         while (i < maxTry) {
-            elementDisplayedText = Driver.findElement(By.className("" + elementClassName + "")).getText();
+            elementDisplayedText = driver.findElement(By.className("" + elementClassName + "")).getText();
             log.info("Going to look for element attempt number" + i + " with text:" + elementDisplayedText);
 
             if (!StringUtils.isEmpty(elementDisplayedText)) {
@@ -1223,7 +1223,7 @@ public class BasePage {
     }
 
     public static WebElement getElementByText(String text) {
-        return Driver.findElement(By.xpath("//*[text()=\"" + text + "\"]"));
+        return driver.findElement(By.xpath("//*[text()=\"" + text + "\"]"));
 
     }
 
@@ -1243,36 +1243,36 @@ public class BasePage {
     public static void waitForElementToHaveText(By by, String text) {
         log.info("Waiting to find text \"" + text + "\" in element at =>" + by);
         wait.ignoring(StaleElementReferenceException.class);
-        wait.until(driver -> Driver.findElement(by).getText().toLowerCase().contains(text.toLowerCase()));
-        wait.until(ExpectedConditions.visibilityOf(Driver.findElement(by)));
+        wait.until(driver -> BasePage.driver.findElement(by).getText().toLowerCase().contains(text.toLowerCase()));
+        wait.until(ExpectedConditions.visibilityOf(driver.findElement(by)));
     }
 
     public static void navigateBack(){
-        String previousUrl = Driver.getCurrentUrl();
-        Driver.navigate().back();
+        String previousUrl = driver.getCurrentUrl();
+        driver.navigate().back();
         waitForPageToLoad();
-        assertWithMessage("Url has not changed").that(Driver.getCurrentUrl().equals(previousUrl)).isFalse();
+        assertWithMessage("Url has not changed").that(driver.getCurrentUrl().equals(previousUrl)).isFalse();
     }
 
     public static void refreshPage(){
-        Driver.navigate().refresh();
+        driver.navigate().refresh();
         waitForPageToLoad();
     }
 
     public static void selectCheckBoxWithRetryScript(By by) throws Exception {
         log.info("Going to check checkbox for element with by =>"+by);
-        WebElement checkbox = Driver.findElement(by);
+        WebElement checkbox = driver.findElement(by);
         int attempts = 0;
 
         while (attempts < 5) {
-            checkbox = Driver.findElement(by);
+            checkbox = driver.findElement(by);
             if (checkbox.isSelected()) {
                 log.info("Checkbox by by =>" + by + "<= is selected, continuing");
                 return;
             }
 
             log.info("Checkbox is unchecked, checking now: attempt #" + (attempts + 1));
-            scriptClickElement(Driver, checkbox);
+            scriptClickElement(driver, checkbox);
             log.info("Script clicked checkbox");
 
 
@@ -1295,20 +1295,20 @@ public class BasePage {
         int attempts = 0;
 
         while (attempts < 5) {
-            checkbox = Driver.findElement(by);
+            checkbox = driver.findElement(by);
             if (!checkbox.isSelected()) {
                 log.info("Checkbox by by =>" + by + "<= is unselected, continuing");
                 return;
             }
             log.info("Checkbox is checked, unchecking now: attempt #" + (attempts + 1));
-            scriptClickElement(Driver, checkbox);
+            scriptClickElement(driver, checkbox);
             log.info("Script clicked checkbox");
 
             Thread.sleep(1000);
             attempts++;
         }
 
-        checkbox = Driver.findElement(by);
+        checkbox = driver.findElement(by);
         if (!checkbox.isSelected())
             log.info("Unchecked checkbox successfully");
         else {
@@ -1336,7 +1336,7 @@ public class BasePage {
         log.info("Got checkbox tagname as: " + checkbox.getTagName());
         if (checkbox.getTagName().equals("label")) {
             log.info("Looking for equivalent input to assert selection");
-            checkbox = Driver.findElement(By.xpath("//input[@id = '" + clickable.getAttribute("for") + "']"));
+            checkbox = driver.findElement(By.xpath("//input[@id = '" + clickable.getAttribute("for") + "']"));
         } else if (checkbox.getTagName().equals("span")) {
             log.info("Looking for equivalent input to assert selection");
             checkbox = clickable.findElement(By.xpath("./input"));
@@ -1369,8 +1369,8 @@ public class BasePage {
     public static void clickOnCheckBoxLabel(String labelText) throws Exception {
         By checkboxLabel = By.xpath("//label[contains(text(),\"" + labelText + "\")]");
         waitAndClickWithRetry(waitForVisibleElement(checkboxLabel));
-        WebElement checkboxLabelElement = Driver.findElement(checkboxLabel);
-        assertWithMessage("Checkbox could not be checked =>"+labelText).that(Driver.findElement(By.id(checkboxLabelElement.getAttribute("for"))).isSelected()).isTrue();
+        WebElement checkboxLabelElement = driver.findElement(checkboxLabel);
+        assertWithMessage("Checkbox could not be checked =>"+labelText).that(driver.findElement(By.id(checkboxLabelElement.getAttribute("for"))).isSelected()).isTrue();
     }
     public static void clickEllipsisButton() throws Exception {
         waitForPageToLoad();
@@ -1385,7 +1385,7 @@ public class BasePage {
 
     public static void selectBreadcrumbByText(String breadcrumbText) throws Exception {
         log.info("Selecting " + breadcrumbText + " in the breadcrumb.");
-        waitAndClickWithRetry(Driver.findElement(By.xpath(String.format("//div[contains(@class, 'paddingTop20 customerBreadcrumbStyle')]//strong[contains(text(), \"%1$s\")] | //ul[contains(@class,'breadcrumb')]/li/a[contains(text(), \"%1$s\")]", breadcrumbText))));
+        waitAndClickWithRetry(driver.findElement(By.xpath(String.format("//div[contains(@class, 'paddingTop20 customerBreadcrumbStyle')]//strong[contains(text(), \"%1$s\")] | //ul[contains(@class,'breadcrumb')]/li/a[contains(text(), \"%1$s\")]", breadcrumbText))));
     }
 
     public static WebElement getModalWithTitleText(String modalTitle) throws Exception {
@@ -1452,17 +1452,17 @@ public class BasePage {
 
     public static void waitForPageToChange(String title, String urlString) throws Exception {
         int i = 0;
-        JavascriptExecutor js = (JavascriptExecutor) Driver;
+        JavascriptExecutor js = (JavascriptExecutor) driver;
 
         while (i <= 10) {
             log.info("Retry attempt =>" + i);
-            log.info("Current Url =>" + Driver.getCurrentUrl());
-            if (Driver.getCurrentUrl().contains(urlString)) {
+            log.info("Current Url =>" + driver.getCurrentUrl());
+            if (driver.getCurrentUrl().contains(urlString)) {
                 log.info("Returning from the method as url now contains =>" + urlString);
                 return;
             } else {
                 log.info("Going to click on title =>" + title);
-                waitAndClickWithRetry(Driver.findElement(By.cssSelector("a[title='" + title + "']")));
+                waitAndClickWithRetry(driver.findElement(By.cssSelector("a[title='" + title + "']")));
             }
             log.info("document ready state =>" + js.executeScript("return document.readyState"));
             Thread.sleep(300);
@@ -1474,7 +1474,7 @@ public class BasePage {
         log.info("Opening dropdown and looking for option matching \"" + page + "\"");
         if (requiresScriptClickToToggle) {
             log.info("Opening dropdown using script click as toggle is not clickable via normal methods...");
-            scriptClickElement(Driver, informationPageDropdown);
+            scriptClickElement(driver, informationPageDropdown);
         } else {
             log.info("Opening dropdown using waitAndClickWithRetry...");
             waitAndClickWithRetry(informationPageDropdown);
@@ -1505,14 +1505,14 @@ public class BasePage {
             log.warn("Unable to select dropdown for option text =>" + optionText + "<= for dropdown element =>" + dropdown + "<= with dropdownOptions =>" + dropdownOptions);
             if (requiresScriptClickToToggle) {
                 log.info("Opening dropdown using script click as toggle is not clickable via normal methods...");
-                scriptClickElement(Driver, dropdown);
+                scriptClickElement(driver, dropdown);
             } else {
                 log.info("Opening dropdown using waitAndClickWithRetry...");
                 waitAndClickWithRetry(dropdown);
             }
             By by = extractByFromWebElement(dropdownOptions.get(0));
             log.info("Extracted By =>" + by + "<= to find elements by for dropdown selection with text =>" + optionText);
-            for (WebElement option : Driver.findElements(by)) {
+            for (WebElement option : driver.findElements(by)) {
                 if (option.getText().toLowerCase().contains(optionText.toLowerCase())) {
                     log.info("Found option matching \"" + optionText + "\", clicking element...");
                     waitAndClickWithRetry(option);
@@ -1557,7 +1557,7 @@ public class BasePage {
     }
     public static void selectFirstUnselectedAndVisibleRadioButton() throws Exception {
         log.info("Selecting the first visible and unselected radio button available");
-        List<WebElement> radioButtons = Driver.findElements(By.cssSelector("input[type=radio]"));
+        List<WebElement> radioButtons = driver.findElements(By.cssSelector("input[type=radio]"));
         for(WebElement element: radioButtons){
             WebElement elementSib = element.findElement(By.xpath("following-sibling::label"));
             if(elementSib.isDisplayed() && !element.isSelected()) {
@@ -1599,7 +1599,7 @@ public class BasePage {
         waitForPageToLoad();
         log.info("Switching out of iFrame");
         removeImplicitWait();
-        Driver.switchTo().defaultContent();
+        driver.switchTo().defaultContent();
         setWebDriverWait();
     }
 
@@ -1709,14 +1709,14 @@ public class BasePage {
     }
 
     public static void selectViewOnPDP(String view) throws Exception {
-        waitAndClickWithRetry(Driver.findElement(By.xpath(String.format("//a[@id= '%s-button']", view.toLowerCase()))));
+        waitAndClickWithRetry(driver.findElement(By.xpath(String.format("//a[@id= '%s-button']", view.toLowerCase()))));
     }
 
     public static void navigateToUrl(String url) {
         log.info("Navigating to \"" + url + "\"");
         String finalUrl = parseUrlToFinalUrl(url);
         log.info("Got final url as ==>" + finalUrl + "<==");
-        Driver.navigate().to(finalUrl);
+        driver.navigate().to(finalUrl);
     }
 
     private static String parseUrlToFinalUrl(String url) {
@@ -1787,13 +1787,13 @@ public class BasePage {
     }
 
     public static void assertElementInListIsEnabledOrDisabledById(int position, String identifier, String enabledOrDisabled) throws Exception {
-        List<WebElement> elementList = Driver.findElements(By.id(identifier));
+        List<WebElement> elementList = driver.findElements(By.id(identifier));
         WebElement element = elementList.get(position);
         assertElementIsEnabledOrDisabled(element, enabledOrDisabled);
     }
 
     public static void assertSingleElementIsEnabledOrDisabledByID(String identifier, String enabledOrDisabled) throws Exception {
-        WebElement element = Driver.findElement(By.id(identifier));
+        WebElement element = driver.findElement(By.id(identifier));
         assertElementIsEnabledOrDisabled(element, enabledOrDisabled);
     }
 
@@ -1832,7 +1832,7 @@ public class BasePage {
         log.info("Deciding if the user should be able to access page");
         if(canOrCannot.equalsIgnoreCase("can")) {
             log.info("User should be able to access=>" + url + "<=");
-            assertThat(Driver.getCurrentUrl()).contains(url);
+            assertThat(driver.getCurrentUrl()).contains(url);
             if(BasePage.checkIfElementDisplayed(By.xpath("//div[@class='container']/h4")))
             {
                 // This will hit if the user does not have the correct permission
@@ -1842,8 +1842,8 @@ public class BasePage {
         else if(canOrCannot.equalsIgnoreCase("cannot"))
         {
             log.info("User should not be able to access=>" + url + "<= and should be prompted with an error message");
-            assertThat(Driver.getCurrentUrl()).contains(url);
-            WebElement errorContainer = Driver.findElement(By.xpath("//div[@class='container']/h4"));
+            assertThat(driver.getCurrentUrl()).contains(url);
+            WebElement errorContainer = driver.findElement(By.xpath("//div[@class='container']/h4"));
             log.info("Created new web element to access expected error message=>" + errorContainer.getText() + "<=");
             assertThat(errorContainer.getText()).contains("Not authorised to view or perform action");
         }
@@ -1862,8 +1862,8 @@ public class BasePage {
 
     public static void assertUrl(String url) {
         log.info("Asserting that the specified url =>" + url + "<= is contained within the current");
-        assertThat(Driver.getCurrentUrl()).contains(url);
-        log.info("Logging current url =>" + Driver.getCurrentUrl() + "<=");
+        assertThat(driver.getCurrentUrl()).contains(url);
+        log.info("Logging current url =>" + driver.getCurrentUrl() + "<=");
     }
 
     public static WebElement getClickableForCheckboxByLabel(String labelText, String precedingOrFollowing) throws InterruptedException {
@@ -1931,7 +1931,7 @@ public class BasePage {
         String value = null;
         switch (element.toLowerCase()) {
             case "order number":
-                Matcher m = Pattern.compile("\\d+").matcher(Driver.findElement(By.xpath("//h2[@id='orderplaced-js']|//h2[@class='checkout-confirm-header']")).getText());
+                Matcher m = Pattern.compile("\\d+").matcher(driver.findElement(By.xpath("//h2[@id='orderplaced-js']|//h2[@class='checkout-confirm-header']")).getText());
                 if (m.find()) value = m.group();
                 break;
             default:
@@ -1983,7 +1983,7 @@ public class BasePage {
 
     public static boolean messageWithBoldTextIsVisible(String text) {
         log.info("Find text \"" + text + "\" in element b");
-        WebElement boldText = Driver.findElement(By.xpath("//b[contains(text(),'" + text + "')]"));
+        WebElement boldText = driver.findElement(By.xpath("//b[contains(text(),'" + text + "')]"));
         return boldText.isDisplayed();
     }
 
@@ -2074,7 +2074,7 @@ public class BasePage {
 
     public static void assertTextOnPage(String text1, String text2) {
         log.info("Extracting body text and asserting contains " + text1 + " or " + text2);
-        String pageText = Driver.findElement(By.tagName("body")).getText().toLowerCase();
+        String pageText = driver.findElement(By.tagName("body")).getText().toLowerCase();
         boolean hasText1 = pageText.contains(text1.toLowerCase());
         log.info("Found text1 (" + text1 + ") was " + (hasText1 ? "" : "not ") + "displayed");
         boolean hasText2 = pageText.contains(text2.toLowerCase());
@@ -2089,7 +2089,7 @@ public class BasePage {
     }
 
     public static void clickToCloseModal(String modalTitle) throws Exception {
-        WebElement modalTitleCloseButton = Driver.findElement(By.xpath("//h4[contains(text(),'" + modalTitle + "')]//preceding-sibling::button[contains(@class,'close')]"));
+        WebElement modalTitleCloseButton = driver.findElement(By.xpath("//h4[contains(text(),'" + modalTitle + "')]//preceding-sibling::button[contains(@class,'close')]"));
         log.info("Closing " + modalTitle + " modal");
         waitAndClickWithRetry(modalTitleCloseButton);
     }

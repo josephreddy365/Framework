@@ -1,7 +1,7 @@
 # Cucumber uses Gherkin language syntax to make the code easy to non-programmers read and understand the flow.
 
 # Three sections - FEATURE | BACKGROUND | SCENARIO
-  @test
+@test
 Feature: User Authentication
 
   Scenario: User authentication verification

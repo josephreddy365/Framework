@@ -6,7 +6,7 @@ import org.openqa.selenium.support.FindBy;
 
 public class HomePage extends BasePage {
 
-    @FindBy(id = "email")
+    @FindBy(id = "emailed")
     public static WebElement usernameTextBox;
     @FindBy(id = "passwd")
     public static WebElement passwordTextBox;
