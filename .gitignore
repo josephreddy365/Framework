@@ -1,0 +1,64 @@
+# use glob syntax.
+syntax: glob
+*~
+.DS_Store
+build.xml
+extensioninfo.xsd
+items.xsd
+beans.xsd
+hmc.xsd
+platformhome.properties
+**~$TestData.xlsm
+**bin/*
+**rerun/*
+**.classpath
+**.class
+**eclipsebin**
+**gensrc**
+**jalo*
+**addonsrc*
+**addons*
+*hmc.jar
+*.orig
+**.classpath
+**target/*
+**output/*
+**output2/*
+**test-output/*
+**output_Api_Report/*
+**studio/caches*
+solr.xml
+.settings/*
+**commonwebsrc*
+**.build.number
+*.iml
+
+# Ignore generated metadata etc
+.metadata\*
+**\.springBeans
+
+**\eclipsebin\*
+.externalToolBuilders/
+**\.settings\*
+
+# Ignore other generated files catch-all
+**\classes\*
+**gensrc*
+
+# Ignore build generated files
+/target/**/*
+/test-output/**/*
+/.idea/**/*
+/output/**/*
+/output1/**/*
+/output2/**/*
+/output3/**/*
+/output4/**/*
+/Logs/**/* 
+/target/
+/.apt_generated/
+/.apt_generated_tests/
+/bin/
+/Videos/
+
+build
